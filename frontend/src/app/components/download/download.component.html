@@ -1,0 +1,92 @@
+<div class="download-container">
+  <div class="card">
+    <div class="card-header">
+      <h2>Media Downloader</h2>
+      <p>Download videos, audio, and images from various websites</p>
+    </div>
+    
+    <div class="card-body">
+      <form [formGroup]="downloadForm" (ngSubmit)="onSubmit()">
+        <!-- URL Input -->
+        <div class="form-group">
+          <label for="url">URL to download</label>
+          <input 
+            type="text" 
+            id="url" 
+            formControlName="url" 
+            class="form-control" 
+            placeholder="https://example.com/video.mp4"
+          >
+          <div *ngIf="downloadForm.get('url')?.invalid && downloadForm.get('url')?.touched" class="error-message">
+            Please enter a valid URL starting with http:// or https://
+          </div>
+        </div>
+        
+        <!-- Format Selection -->
+        <div class="form-group">
+          <label for="format">Format (optional)</label>
+          <select id="format" formControlName="format" class="form-control">
+            <option *ngFor="let option of formatOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+        
+        <!-- Quality Selection -->
+        <div class="form-group">
+          <label for="quality">Quality (optional)</label>
+          <select id="quality" formControlName="quality" class="form-control">
+            <option *ngFor="let option of qualityOptions" [value]="option.value">{{ option.label }}</option>
+          </select>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="form-actions">
+          <button type="submit" class="btn btn-primary" [disabled]="downloadForm.invalid || isLoading">
+            <span *ngIf="isLoading" class="spinner"></span>
+            <span>Download</span>
+          </button>
+          <button type="button" class="btn btn-secondary" (click)="clearForm()">
+            Clear
+          </button>
+        </div>
+      </form>
+      
+      <!-- Error Message -->
+      <div *ngIf="errorMessage" class="alert alert-danger mt-3">
+        {{ errorMessage }}
+      </div>
+      
+      <!-- Download Result -->
+      <div *ngIf="downloadResponse && downloadResponse.status === 'SUCCESS'" class="download-result mt-3">
+        <h3>Download Complete!</h3>
+        <div class="file-info">
+          <p><strong>File Name:</strong> {{ downloadResponse.fileName }}</p>
+          <p><strong>File Type:</strong> {{ downloadResponse.fileType }}</p>
+          <p><strong>File Size:</strong> {{ formatFileSize(downloadResponse.fileSize) }}</p>
+        </div>
+        <a [href]="getDownloadUrl(downloadResponse.fileName!)" class="btn btn-success" download>
+          <i class="fa fa-download"></i> Download File
+        </a>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Download History -->
+  <div class="card mt-4" *ngIf="downloadHistory.length > 0">
+    <div class="card-header">
+      <h3>Download History</h3>
+    </div>
+    <div class="card-body">
+      <div class="history-list">
+        <div *ngFor="let item of downloadHistory" class="history-item">
+          <div class="history-info">
+            <p class="file-name">{{ item.fileName }}</p>
+            <p class="file-details">{{ item.fileType }} - {{ formatFileSize(item.fileSize) }}</p>
+          </div>
+          <a [href]="getDownloadUrl(item.fileName!)" class="btn btn-sm btn-outline-primary" download>
+            <i class="fa fa-download"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
